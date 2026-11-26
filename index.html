@@ -104,6 +104,7 @@ background:linear-gradient(180deg,#14100d,#070504);border:2px solid var(--gold2)
 .btn:hover{filter:brightness(1.08)}
 .btn:active{transform:scale(.99)}
 .btn.alt{background:transparent;color:var(--gold);border:1.5px solid var(--gold2);margin-top:8px;box-shadow:none}
+#reset{margin-top:14px}
 .btn.alt:hover{background:rgba(232,184,63,.1)}
 .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
 .name{flex:1;font-weight:600;line-height:1.25;color:var(--ink)}
@@ -130,7 +131,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 .rl.rt{font-weight:700;font-size:19px}
 .rf{text-align:center;margin-top:10px;font-size:12px;color:#5a4d36}
 .btn.again{margin:0 6px 14px;width:calc(100% - 12px)}
-.btn.pay{margin-top:4px}
+.btn.pay{margin-top:10px}
 /* Slot-Maschine */
 .slotm{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px}
 .slot{display:flex;gap:6px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#8c1018,#3a0509);border:2px solid #e0b04a;box-shadow:0 0 0 3px #0a0706,0 0 0 4px var(--gold2),inset 0 0 12px rgba(0,0,0,.7)}
@@ -170,14 +171,6 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 
 <div id="form"></div>
 
-<div class="card" id="pay">
-<b class="gold" style="font-family:var(--disp);letter-spacing:1.2px;text-transform:uppercase">Bezahlen</b>
-<div class="row" style="margin-top:6px">
-<div class="name">PayPal<small id="p-pp">paypal.me/LHrauda</small></div>
-<button type="button" class="btn alt" id="copy-pp" style="width:auto;margin:0;padding:8px 14px">Kopieren</button>
-</div>
-<p class="msg ok" id="pp-msg" style="margin-top:6px"></p>
-</div>
 </main>
 
 <script>
@@ -338,14 +331,14 @@ h += '<div class="card" style="margin-top:20px">'
 + '<div class="rl rt"><span>SUMME</span><span>' + eur(s.total) + '</span></div>'
 + '<div class="rf">Danke für deinen Einsatz!</div>'
 + '</div>'
-+ '<a class="btn alt pay" id="payb" href="' + payUrl + '"' + (s.total > 0 ? ' target="_blank" rel="noopener"' : '') + '>💳 Jetzt bezahlen' + (s.total > 0 ? ' (' + eur(s.total) + ')' : '') + '</a>'
 + '<div class="namebox"><label class="name-label" for="nm">Dein Name</label>'
 + '<input type="text" id="nm" placeholder="z. B. Max" value="' + esc(draft.name) + '"></div>'
 + '<div class="namebox"><label class="name-label" for="note">Anmerkung (optional)</label>'
 + '<textarea id="note" rows="2" maxlength="200" placeholder="z. B. Brötchen bitte ungeschnitten">' + esc(draft.note) + '</textarea></div>'
++ '<button type="button" class="btn alt" id="reset">🔄 Neue Runde</button>'
 + '<div class="slotm' + (spinning ? ' spinning' : '') + '"><div class="slot"><div class="reel">🥐</div><div class="reel">👑</div><div class="reel">🥐</div></div><div class="lever"></div></div>'
 + '<a class="btn spin" id="wa" href="#" rel="noopener">🎰 SPIN &amp; per WhatsApp bestellen</a>'
-+ '<button type="button" class="btn alt" id="reset">🔄 Neue Runde</button>'
++ '<a class="btn alt pay" id="payb" href="' + payUrl + '"' + (s.total > 0 ? ' target="_blank" rel="noopener"' : '') + '>💳 Jetzt bezahlen' + (s.total > 0 ? ' (' + eur(s.total) + ')' : '') + '</a>'
 + '<p class="msg ' + status.c + '">' + esc(status.t) + '</p></div>';
 $("#form").innerHTML = h;
 }
@@ -430,13 +423,6 @@ draft.note = "";
 draft.no = newNo();
 status = { t: "Alles auf null – neue Runde, neues Glück!", c: "ok" };
 render();
-} else if (b.id === "copy-pp") {
-try {
-await copyFallback($("#p-pp").textContent);
-$("#pp-msg").textContent = "PayPal-Link kopiert.";
-} catch (err) {
-$("#pp-msg").textContent = "Bitte Link manuell kopieren.";
-}
 }
 });
 
