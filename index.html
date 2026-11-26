@@ -345,7 +345,6 @@ h += '<div class="card" style="margin-top:20px">'
 + '<textarea id="note" rows="2" maxlength="200" placeholder="z. B. Brötchen bitte ungeschnitten">' + esc(draft.note) + '</textarea></div>'
 + '<div class="slotm' + (spinning ? ' spinning' : '') + '"><div class="slot"><div class="reel">🥐</div><div class="reel">👑</div><div class="reel">🥐</div></div><div class="lever"></div></div>'
 + '<a class="btn spin" id="wa" href="#" rel="noopener">🎰 SPIN &amp; per WhatsApp bestellen</a>'
-+ '<button type="button" class="btn alt" id="cp">Text kopieren</button>'
 + '<button type="button" class="btn alt" id="reset">🔄 Neue Runde</button>'
 + '<p class="msg ' + status.c + '">' + esc(status.t) + '</p></div>';
 $("#form").innerHTML = h;
@@ -418,16 +417,6 @@ if (b.dataset.p || b.dataset.m) {
 const id = b.dataset.p || b.dataset.m;
 draft.q[id] = Math.max(0, (draft.q[id] || 0) + (b.dataset.p ? 1 : -1));
 status = { t: "", c: "" };
-render();
-} else if (b.id === "cp") {
-if (!check()) return;
-try {
-await copyFallback(orderText());
-saveLast(draft.q);
-status = { t: "Text kopiert. Schick ihn Luca.", c: "ok" };
-} catch (err) {
-status = { t: "Kopieren nicht möglich. Hier der Text: " + orderText(), c: "err" };
-}
 render();
 } else if (b.id === "again") {
 const last = loadLast();
