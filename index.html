@@ -105,6 +105,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 
 .note{margin-top:3px;font-size:11px;font-style:italic;font-weight:600;color:var(--gold);letter-spacing:.3px}
 .catnote{font-style:normal;font-size:11px;letter-spacing:1.2px;color:#fff0b3;border:1px solid var(--gold2);border-radius:999px;padding:2px 8px;background:rgba(179,18,28,.35);white-space:nowrap}
+.namebox{margin-top:14px}
 /* Slot-Maschine */
 .slotm{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px}
 .slot{display:flex;gap:6px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#8c1018,#3a0509);border:2px solid #e0b04a;box-shadow:0 0 0 3px #0a0706,0 0 0 4px var(--gold2),inset 0 0 12px rgba(0,0,0,.7)}
@@ -147,7 +148,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 <div class="card" id="pay">
 <b class="gold" style="font-family:var(--disp);letter-spacing:1.2px;text-transform:uppercase">Bezahlen</b>
 <div class="row" style="margin-top:6px">
-<div class="name">PayPal<small id="p-pp">paypal.me/LHrauda</small></div>
+<div class="name">PayPal<small id="p-pp">paypal.me/lucajoelhrauda1@gmail.com</small></div>
 <button type="button" class="btn alt" id="copy-pp" style="width:auto;margin:0;padding:8px 14px">Kopieren</button>
 </div>
 <p class="msg ok" id="pp-msg" style="margin-top:6px"></p>
@@ -252,8 +253,7 @@ imgEl.replaceWith(div);
 
 function render() {
 const s = sums();
-let h = '<div class="card"><label class="name-label" for="nm">Dein Name</label>'
-+ '<input type="text" id="nm" placeholder="z. B. Max" value="' + esc(draft.name) + '"></div>';
+let h = "";
 
 let lastCat = "";
 ITEMS.forEach(i => {
@@ -289,6 +289,8 @@ h += '<div class="card" style="margin-top:20px"><div class="totals">'
 + '<div class="sum"><span>Pfand</span><span>' + eur(s.pfand) + '</span></div>'
 + '<div class="tot"><span>Summe</span><span>' + eur(s.total) + '</span></div>'
 + '</div>'
++ '<div class="namebox"><label class="name-label" for="nm">Dein Name</label>'
++ '<input type="text" id="nm" placeholder="z. B. Max" value="' + esc(draft.name) + '"></div>'
 + '<div class="slotm' + (spinning ? ' spinning' : '') + '"><div class="slot"><div class="reel">🥐</div><div class="reel">👑</div><div class="reel">🥐</div></div><div class="lever"></div></div>'
 + '<a class="btn spin" id="wa" href="#" rel="noopener">🎰 SPIN &amp; per WhatsApp bestellen</a>'
 + '<button type="button" class="btn alt" id="cp">Text kopieren</button>'
