@@ -59,6 +59,9 @@ background:repeating-conic-gradient(#efe4c4 0 14deg,#1b1b1b 14deg 30deg);box-sha
 /* Karten */
 .card{background:linear-gradient(180deg,#17100c,#0a0706);color:var(--ink);border:2px solid var(--gold2);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:inset 0 0 0 3px #0a0706,inset 0 0 0 4px var(--line),0 8px 22px rgba(0,0,0,.6)}
 .name-label{display:block;font-family:var(--disp);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);margin-bottom:6px}
+textarea{font:inherit;font-weight:600;font-size:16px;background:#0a0706;color:var(--goldhi);border:1.5px solid var(--gold2);border-radius:12px;width:100%;padding:10px 12px;resize:vertical;min-height:62px}
+textarea::placeholder{color:#7d6b43}
+textarea:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(232,184,63,.35);outline:none}
 input[type=text]{font:inherit;font-weight:700;font-size:18px;background:#0a0706;color:var(--goldhi);border:1.5px solid var(--gold2);border-radius:12px;width:100%;padding:10px 12px;transition:border-color .15s,box-shadow .15s}
 input[type=text]::placeholder{color:#7d6b43}
 input[type=text]:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(232,184,63,.35);outline:none}
@@ -114,6 +117,20 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 .note{margin-top:3px;font-size:11px;font-style:italic;font-weight:600;color:var(--gold);letter-spacing:.3px}
 .catnote{font-style:normal;font-size:11px;letter-spacing:1.2px;color:#fff0b3;border:1px solid var(--gold2);border-radius:999px;padding:2px 8px;background:rgba(179,18,28,.35);white-space:nowrap}
 .namebox{margin-top:14px}
+/* Kassenbon */
+.receipt{position:relative;margin:4px 6px 22px;padding:16px 16px 14px;background:#f4ecd8;color:#2b2418;border-radius:3px 3px 0 0;font-family:"Courier New",Courier,monospace;font-size:14px;line-height:1.35;box-shadow:0 6px 16px rgba(0,0,0,.55)}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;background:linear-gradient(135deg,#f4ecd8 5px,transparent 0) 0 0/14px 10px,linear-gradient(225deg,#f4ecd8 5px,transparent 0) 0 0/14px 10px}
+.rh{text-align:center;font-weight:700;font-size:19px;letter-spacing:2px}
+.rs{text-align:center;font-size:12px;letter-spacing:3px;margin-top:2px}
+.rm{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;color:#5a4d36}
+.dash{border-top:2px dashed #8a7a58;margin:9px 0}
+.rl{display:flex;justify-content:space-between;gap:10px;padding:1px 0}
+.rl span:first-child{overflow-wrap:anywhere}.rl span:last-child{white-space:nowrap}
+.rl.empty{justify-content:center;color:#8a7a58}
+.rl.rt{font-weight:700;font-size:19px}
+.rf{text-align:center;margin-top:10px;font-size:12px;color:#5a4d36}
+.btn.again{margin:0 6px 14px;width:calc(100% - 12px)}
+.btn.pay{margin-top:4px}
 /* Slot-Maschine */
 .slotm{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px}
 .slot{display:flex;gap:6px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#8c1018,#3a0509);border:2px solid #e0b04a;box-shadow:0 0 0 3px #0a0706,0 0 0 4px var(--gold2),inset 0 0 12px rgba(0,0,0,.7)}
@@ -207,7 +224,11 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const NAME_KEY = "bakeryroyale-name";
 function loadName() { try { return localStorage.getItem(NAME_KEY) || ""; } catch (e) { return ""; } }
 function saveName(v) { try { localStorage.setItem(NAME_KEY, v); } catch (e) {} }
-let draft = { name: loadName(), q: {}, fav: {} }, status = { t: "", c: "" };
+const LAST_KEY = "bakeryroyale-last";
+function loadLast() { try { return JSON.parse(localStorage.getItem(LAST_KEY) || "{}"); } catch (e) { return {}; } }
+function saveLast(q) { try { localStorage.setItem(LAST_KEY, JSON.stringify(q)); } catch (e) {} }
+const newNo = () => String(1000 + Math.floor(Math.random() * 9000));
+let draft = { name: loadName(), q: {}, fav: {}, note: "", no: newNo() }, status = { t: "", c: "" };
 
 function sums() {
 let ware = 0, pfand = 0;
@@ -223,9 +244,11 @@ function orderText() {
 const s = sums();
 const lines = ITEMS.filter(i => (draft.q[i.id] || 0) > 0).map(i => "🃏 " + draft.q[i.id] + "× " + i.n);
 return "🎰 BAKERY ROYALE 🎰\n"
++ "🧾 Bon-Nr. " + draft.no + "\n"
 + "👑 Spieler: " + (draft.name.trim() || "Ohne Name") + "\n\n"
 + "🎲 Einsatz:\n" + lines.join("\n") + "\n\n"
 + "💰 Gesamteinsatz: " + eur(s.total) + " (inkl. Pfand)\n"
++ (draft.note.trim() ? "📝 Anmerkung: " + draft.note.trim() + "\n" : "")
 + "😢 Leider nicht gewonnen";
 }
 
@@ -236,6 +259,7 @@ const slug = c => "c-" + c.toLowerCase().replace(/[^a-z]+/g, "-").replace(/-$/, 
 let spinning = false;
 function spin(url) {
 spinning = true;
+saveLast(draft.q);
 // WhatsApp sofort öffnen (direkt im Klick, damit es nicht blockiert wird)
 const win = window.open(url, "_blank");
 if (win) { try { win.opener = null; } catch (e) {} } else { location.href = url; }
@@ -295,13 +319,30 @@ h += '<div class="item' + (jp ? ' jackpot' : '') + '">'
 });
 h += '</div>';
 
-h += '<div class="card" style="margin-top:20px"><div class="totals">'
-+ '<div class="sum"><span>Ware</span><span>' + eur(s.ware) + '</span></div>'
-+ '<div class="sum"><span>Pfand</span><span>' + eur(s.pfand) + '</span></div>'
-+ '<div class="tot"><span>Summe</span><span>' + eur(s.total) + '</span></div>'
+const last = Object.entries(loadLast()).filter(([id, n]) => n > 0 && ITEMS.some(x => x.id === id));
+const payUrl = s.total > 0 ? "https://paypal.me/LHrauda/" + (s.total / 100).toFixed(2) + "EUR" : "#";
+const rows = ITEMS.filter(i => (draft.q[i.id] || 0) > 0).map(i =>
+'<div class="rl"><span>' + draft.q[i.id] + '× ' + esc(i.n) + '</span><span>' + eur(i.p * draft.q[i.id]) + '</span></div>').join("")
+|| '<div class="rl empty">– noch nichts gewählt –</div>';
+const stamp = new Date().toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+
+h += '<div class="card" style="margin-top:20px">'
++ (last.length ? '<button type="button" class="btn alt again" id="again">🔁 Wie letztes Mal</button>' : '')
++ '<div class="receipt">'
++ '<div class="rh">BAKERY ROYALE</div><div class="rs">★ KASSENBON ★</div>'
++ '<div class="rm"><span>' + esc(stamp) + '</span><span>Bon-Nr. ' + draft.no + '</span></div>'
++ '<div class="dash"></div>' + rows + '<div class="dash"></div>'
++ '<div class="rl"><span>Ware</span><span>' + eur(s.ware) + '</span></div>'
++ '<div class="rl"><span>Pfand</span><span>' + eur(s.pfand) + '</span></div>'
++ '<div class="dash"></div>'
++ '<div class="rl rt"><span>SUMME</span><span>' + eur(s.total) + '</span></div>'
++ '<div class="rf">Danke für deinen Einsatz!</div>'
 + '</div>'
++ '<a class="btn alt pay" id="payb" href="' + payUrl + '"' + (s.total > 0 ? ' target="_blank" rel="noopener"' : '') + '>💳 Jetzt bezahlen' + (s.total > 0 ? ' (' + eur(s.total) + ')' : '') + '</a>'
 + '<div class="namebox"><label class="name-label" for="nm">Dein Name</label>'
 + '<input type="text" id="nm" placeholder="z. B. Max" value="' + esc(draft.name) + '"></div>'
++ '<div class="namebox"><label class="name-label" for="note">Anmerkung (optional)</label>'
++ '<textarea id="note" rows="2" maxlength="200" placeholder="z. B. Brötchen bitte ungeschnitten">' + esc(draft.note) + '</textarea></div>'
 + '<div class="slotm' + (spinning ? ' spinning' : '') + '"><div class="slot"><div class="reel">🥐</div><div class="reel">👑</div><div class="reel">🥐</div></div><div class="lever"></div></div>'
 + '<a class="btn spin" id="wa" href="#" rel="noopener">🎰 SPIN &amp; per WhatsApp bestellen</a>'
 + '<button type="button" class="btn alt" id="cp">Text kopieren</button>'
@@ -342,6 +383,15 @@ return true;
 }
 
 document.addEventListener("click", async e => {
+const pb = e.target.closest("#payb");
+if (pb) {
+if (sums().total === 0) {
+e.preventDefault();
+status = { t: "Wähle zuerst mindestens einen Artikel.", c: "err" };
+render();
+}
+return;
+}
 const w = e.target.closest("#wa");
 if (w) {
 e.preventDefault();
@@ -373,13 +423,22 @@ render();
 if (!check()) return;
 try {
 await copyFallback(orderText());
+saveLast(draft.q);
 status = { t: "Text kopiert. Schick ihn Luca.", c: "ok" };
 } catch (err) {
 status = { t: "Kopieren nicht möglich. Hier der Text: " + orderText(), c: "err" };
 }
 render();
+} else if (b.id === "again") {
+const last = loadLast();
+draft.q = {};
+ITEMS.forEach(i => { if (last[i.id] > 0) draft.q[i.id] = last[i.id]; });
+status = { t: "Letzte Bestellung geladen.", c: "ok" };
+render();
 } else if (b.id === "reset") {
 draft.q = {};
+draft.note = "";
+draft.no = newNo();
 status = { t: "Alles auf null – neue Runde, neues Glück!", c: "ok" };
 render();
 } else if (b.id === "copy-pp") {
@@ -394,6 +453,7 @@ $("#pp-msg").textContent = "Bitte Link manuell kopieren.";
 
 document.addEventListener("input", e => {
 if (e.target.id === "nm") { draft.name = e.target.value; saveName(draft.name); }
+if (e.target.id === "note") draft.note = e.target.value;
 });
 
 /* Produktfotos (eingebettet). Der Kong-Strong-Eintrag gilt für alle Getränke. */
