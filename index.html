@@ -148,7 +148,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 <div class="card" id="pay">
 <b class="gold" style="font-family:var(--disp);letter-spacing:1.2px;text-transform:uppercase">Bezahlen</b>
 <div class="row" style="margin-top:6px">
-<div class="name">PayPal<small id="p-pp">paypal.me/lucajoelhrauda1@gmail.com</small></div>
+<div class="name">PayPal<small id="p-pp">paypal.me/LHrauda</small></div>
 <button type="button" class="btn alt" id="copy-pp" style="width:auto;margin:0;padding:8px 14px">Kopieren</button>
 </div>
 <p class="msg ok" id="pp-msg" style="margin-top:6px"></p>
@@ -196,7 +196,10 @@ const $ = s => document.querySelector(s);
 const eur = c => (c / 100).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-let draft = { name: "", q: {}, fav: {} }, status = { t: "", c: "" };
+const NAME_KEY = "bakeryroyale-name";
+function loadName() { try { return localStorage.getItem(NAME_KEY) || ""; } catch (e) { return ""; } }
+function saveName(v) { try { localStorage.setItem(NAME_KEY, v); } catch (e) {} }
+let draft = { name: loadName(), q: {}, fav: {} }, status = { t: "", c: "" };
 
 function sums() {
 let ware = 0, pfand = 0;
@@ -294,6 +297,7 @@ h += '<div class="card" style="margin-top:20px"><div class="totals">'
 + '<div class="slotm' + (spinning ? ' spinning' : '') + '"><div class="slot"><div class="reel">🥐</div><div class="reel">👑</div><div class="reel">🥐</div></div><div class="lever"></div></div>'
 + '<a class="btn spin" id="wa" href="#" rel="noopener">🎰 SPIN &amp; per WhatsApp bestellen</a>'
 + '<button type="button" class="btn alt" id="cp">Text kopieren</button>'
++ '<button type="button" class="btn alt" id="reset">🔄 Neue Runde</button>'
 + '<p class="msg ' + status.c + '">' + esc(status.t) + '</p></div>';
 $("#form").innerHTML = h;
 }
@@ -366,6 +370,10 @@ status = { t: "Text kopiert. Schick ihn Luca.", c: "ok" };
 status = { t: "Kopieren nicht möglich. Hier der Text: " + orderText(), c: "err" };
 }
 render();
+} else if (b.id === "reset") {
+draft.q = {};
+status = { t: "Alles auf null – neue Runde, neues Glück!", c: "ok" };
+render();
 } else if (b.id === "copy-pp") {
 try {
 await copyFallback($("#p-pp").textContent);
@@ -377,7 +385,7 @@ $("#pp-msg").textContent = "Bitte Link manuell kopieren.";
 });
 
 document.addEventListener("input", e => {
-if (e.target.id === "nm") draft.name = e.target.value;
+if (e.target.id === "nm") { draft.name = e.target.value; saveName(draft.name); }
 });
 
 /* Produktfotos (eingebettet). Der Kong-Strong-Eintrag gilt für alle Getränke. */
