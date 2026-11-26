@@ -104,6 +104,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 @media (min-width:600px){.grid{gap:14px;padding:14px}.item{padding:12px 10px}.nm{font-size:16px}.pr{font-size:17px}.qty button{width:32px;height:32px}.thumb-badge{font-size:60px}}
 
 .note{margin-top:3px;font-size:11px;font-style:italic;font-weight:600;color:var(--gold);letter-spacing:.3px}
+.catnote{font-style:normal;font-size:11px;letter-spacing:1.2px;color:#fff0b3;border:1px solid var(--gold2);border-radius:999px;padding:2px 8px;background:rgba(179,18,28,.35);white-space:nowrap}
 /* Slot-Maschine */
 .slotm{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px}
 .slot{display:flex;gap:6px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#8c1018,#3a0509);border:2px solid #e0b04a;box-shadow:0 0 0 3px #0a0706,0 0 0 4px var(--gold2),inset 0 0 12px rgba(0,0,0,.7)}
@@ -119,7 +120,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 .slotm.win .slot{animation:winglow .5s ease-in-out infinite alternate}
 @keyframes winglow{from{box-shadow:0 0 0 3px #0a0706,0 0 0 4px var(--gold),0 0 10px rgba(255,200,60,.5)}to{box-shadow:0 0 0 3px #0a0706,0 0 0 4px #fff0b3,0 0 28px rgba(255,210,70,1)}}
 .btn.spin{background:linear-gradient(180deg,#e8434b,#a30f19 55%,#6e0911);color:#ffe9a0;border:1.5px solid #ffd978;font-family:var(--disp);letter-spacing:1px;text-transform:uppercase;text-shadow:0 1px 0 #000;box-shadow:0 0 14px rgba(220,40,50,.5),0 4px 12px rgba(0,0,0,.5)}
-.slotm.win + .btn.spin,.slotm.spinning + .btn.spin{pointer-events:none}
+.slotm.spinning + .btn.spin{pointer-events:none}
+.slotm.lose .slot{box-shadow:0 0 0 3px #0a0706,0 0 0 4px #5b2a2a,inset 0 0 12px rgba(0,0,0,.7);filter:saturate(.7)}
 @media (prefers-reduced-motion:reduce){.spinning .reel,.spinning .lever,.slotm.win .slot,.reel.stop{animation:none}}
 </style>
 </head>
@@ -145,7 +147,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(-
 <div class="card" id="pay">
 <b class="gold" style="font-family:var(--disp);letter-spacing:1.2px;text-transform:uppercase">Bezahlen</b>
 <div class="row" style="margin-top:6px">
-<div class="name">PayPal<small id="p-pp">paypal.me/LHrauda</small></div>
+<div class="name">PayPal<small id="p-pp">paypal.me/lucajoelhrauda1@gmail.com</small></div>
 <button type="button" class="btn alt" id="copy-pp" style="width:auto;margin:0;padding:8px 14px">Kopieren</button>
 </div>
 <p class="msg ok" id="pp-msg" style="margin-top:6px"></p>
@@ -164,8 +166,11 @@ const PFAND = 25;
    p     = Preis in Cent (85 = 0,85 €)
    d     = Pfand: 1 = ja, 0 = nein
    note  = Zusatztext für dieses Produkt, z. B. "nur Zero" oder "solange der Vorrat reicht".
-           Steht dann auf der Karte und in der WhatsApp-Nachricht. Leer lassen ("") = nichts.
+           Steht nur auf der Karte, nicht in der WhatsApp-Nachricht. Leer lassen ("") = nichts.
    ============================================================ */
+/* Zusatztext in der Überschrift einer Kategorie (leer / nicht eintragen = nichts) */
+const CAT_NOTES = { "Getränke": "nur Zero" };
+
 const ITEMS = [
 { id: "franzbroetchen", cat: "Backwaren", n: "Franzbrötchen", p: 85, d: 0, emoji: "🥐", note: "" },
 { id: "apfeltasche", cat: "Backwaren", n: "Apfeltasche", p: 85, d: 0, emoji: "🥧", note: "" },
@@ -180,10 +185,10 @@ const ITEMS = [
 { id: "mozzarella", cat: "Snacks & Herzhaftes", n: "Mozzarella", p: 95, d: 0, emoji: "🧀", note: "" },
 { id: "tomatenmark", cat: "Snacks & Herzhaftes", n: "Tomatenmark", p: 95, d: 0, emoji: "🍅", note: "" },
 
-{ id: "gross", cat: "Getränke", n: "Affenpisse groß (0,5 l)", p: 75, d: 1, emoji: "🥤", note: "nur Zero" },
-{ id: "mitte", cat: "Getränke", n: "Affenpisse mitte (0,33 l)", p: 50, d: 1, emoji: "🥤", note: "nur Zero" },
-{ id: "klein", cat: "Getränke", n: "Affenpisse klein (0,25 l)", p: 40, d: 1, emoji: "🥤", note: "nur Zero" },
-{ id: "druckbetankung", cat: "Getränke", n: "Druckbetankung Affenpisse groß (0,5 l) x Rachmaninoff", p: 250, d: 1, emoji: "🍾", note: "nur Zero" }
+{ id: "gross", cat: "Getränke", n: "Affenpisse groß (0,5 l)", p: 75, d: 1, emoji: "🥤", note: "" },
+{ id: "mitte", cat: "Getränke", n: "Affenpisse mitte (0,33 l)", p: 50, d: 1, emoji: "🥤", note: "" },
+{ id: "klein", cat: "Getränke", n: "Affenpisse klein (0,25 l)", p: 40, d: 1, emoji: "🥤", note: "" },
+{ id: "druckbetankung", cat: "Getränke", n: "Druckbetankung Affenpisse groß (0,5 l) x Rachmaniov", p: 250, d: 1, emoji: "🍾", note: "" }
 ];
 
 const $ = s => document.querySelector(s);
@@ -204,12 +209,12 @@ return { ware, pfand, total: ware + pfand };
 
 function orderText() {
 const s = sums();
-const lines = ITEMS.filter(i => (draft.q[i.id] || 0) > 0).map(i => "🃏 " + draft.q[i.id] + "× " + i.n + (i.note ? " (" + i.note + ")" : ""));
+const lines = ITEMS.filter(i => (draft.q[i.id] || 0) > 0).map(i => "🃏 " + draft.q[i.id] + "× " + i.n);
 return "🎰 BAKERY ROYALE 🎰\n"
 + "👑 Spieler: " + (draft.name.trim() || "Ohne Name") + "\n\n"
 + "🎲 Einsatz:\n" + lines.join("\n") + "\n\n"
 + "💰 Gesamteinsatz: " + eur(s.total) + " (inkl. Pfand)\n"
-+ "🍀 Viel Glück – auf den Jackpot! 🎰";
++ "😢 Leider nicht gewonnen";
 }
 
 const CROWN = '<svg viewBox="0 0 64 44" aria-hidden="true" fill="currentColor"><path d="M4 10l14 12L32 2l14 20L60 10l-6 28H10z"/><rect x="10" y="40" width="44" height="4" rx="2"/></svg>';
@@ -219,14 +224,22 @@ const slug = c => "c-" + c.toLowerCase().replace(/[^a-z]+/g, "-").replace(/-$/, 
 let spinning = false;
 function spin(url) {
 spinning = true;
+// WhatsApp sofort öffnen (direkt im Klick, damit es nicht blockiert wird)
+const win = window.open(url, "_blank");
+if (win) { try { win.opener = null; } catch (e) {} } else { location.href = url; }
+
 const wa = $("#wa"), m = $(".slotm"), reels = [...document.querySelectorAll(".reel")];
+const label = wa.innerHTML;
 const SYM = ["🥐", "🍪", "🍒", "7️⃣", "🥨", "👑", "🍀"];
+// Immer verloren: Beinahe-Treffer mit zwei Kronen, dritte Walze anders
+const others = SYM.filter(x => x !== "👑");
+const result = ["👑", "👑", others[Math.floor(Math.random() * others.length)]];
+m.classList.remove("win", "lose");
 m.classList.add("spinning");
 wa.textContent = "🎰 Walzen drehen …";
 const timers = reels.map(r => setInterval(() => { r.textContent = SYM[Math.floor(Math.random() * SYM.length)]; }, 70));
-reels.forEach((r, n) => setTimeout(() => { clearInterval(timers[n]); r.textContent = "👑"; r.classList.add("stop"); }, 800 + n * 450));
-setTimeout(() => { m.classList.remove("spinning"); m.classList.add("win"); wa.innerHTML = "👑 JACKPOT! Auf zu WhatsApp"; }, 1950);
-setTimeout(() => { location.href = url; setTimeout(() => { spinning = false; render(); }, 1500); }, 3100);
+reels.forEach((r, n) => setTimeout(() => { clearInterval(timers[n]); r.textContent = result[n]; r.classList.add("stop"); }, 800 + n * 600));
+setTimeout(() => { m.classList.remove("spinning"); m.classList.add("lose"); wa.textContent = "😢 Knapp daneben – nochmal?"; spinning = false; }, 800 + 2 * 600 + 400);
 }
 
 function fallbackToEmoji(imgEl) {
@@ -246,7 +259,7 @@ let lastCat = "";
 ITEMS.forEach(i => {
 if (i.cat !== lastCat) {
 if (lastCat) h += '</div>';
-h += '<div class="cat" id="' + slug(i.cat) + '">' + CROWN + '<span class="gold">' + esc(i.cat) + '</span>' + CROWN + '</div><div class="grid">';
+h += '<div class="cat" id="' + slug(i.cat) + '">' + CROWN + '<span class="gold">' + esc(i.cat) + '</span>' + (CAT_NOTES[i.cat] ? '<em class="catnote">' + esc(CAT_NOTES[i.cat]) + '</em>' : '') + CROWN + '</div><div class="grid">';
 lastCat = i.cat;
 }
 const src = IMG[i.id];
