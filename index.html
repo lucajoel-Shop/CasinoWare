@@ -245,7 +245,7 @@ return "🎰 BAKERY ROYALE 🎰\n"
 + "🎲 Einsatz:\n" + lines.join("\n") + "\n\n"
 + "💰 Gesamteinsatz: " + eur(s.total) + " (inkl. Pfand)\n"
 + (draft.note.trim() ? "📝 Anmerkung: " + draft.note.trim() + "\n" : "")
-+ "😢 Leider nicht gewonnen";
++ ((draft.q["druckbetankung"] || 0) > 0 ? "🎰 Jackpot bester Einkauf!" : "");
 }
 
 const CROWN = '<svg viewBox="0 0 64 44" aria-hidden="true" fill="currentColor"><path d="M4 10l14 12L32 2l14 20L60 10l-6 28H10z"/><rect x="10" y="40" width="44" height="4" rx="2"/></svg>';
